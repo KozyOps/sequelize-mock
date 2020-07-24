@@ -50,6 +50,7 @@ function Sequelize(database, username, password, options) {
 	 **/
 	this.options = _.extend({
 		dialect: 'mock',
+		transactionType: ''
 	}, options || {});
 	
 	/**
@@ -380,9 +381,10 @@ Sequelize.prototype.query = function () {
  * run through transactions and those that aren't.
  * 
  * @param {Function} [fn] Optional function to run as a transaction
+ * @param {Object} [options] Optional options object 
  * @return {Promise} Promise that resolves the code is successfully run, otherwise it is rejected
  */
-Sequelize.prototype.transaction = async function (fn) {
+Sequelize.prototype.transaction = async function (fn, options) {
 	if(!fn) {
 		fn = async function (t) {
 			return t;

@@ -322,6 +322,7 @@ describe('Sequelize', function () {
 	});
 	
 	describe('#transaction', function () {
+		//old tests for the old transaction methods
 		it('should run a passed in function', function (done) {
 			var seq = new Sequelize(),
 				count = 0;
@@ -341,6 +342,63 @@ describe('Sequelize', function () {
 				done()
 			}).catch(done);
 		});
+		
+		//new tests for new transaction implementations
+		describe('#managed transactions', function (){
+			it('should return the callback', function (done) {
+				var seq = new Sequelize(),
+					count = 0;
+				seq.transaction( function () {
+					count++;
+					return Promise.resolve();
+				}).then(function () {
+					count.should.equal(1);
+					done()
+				}).catch(done);
+			});
+			
+			it('should accept an options object', function () {
+				
+			});
+			
+			it('should call .commit if no errors are thrown', function () {
+				
+			});
+			
+			it('should rollback if an error is thrown in a query', function () {
+				
+			});
+		
+		});
+
+		describe('#unmanaged transactions', function () {
+			//TODO
+			it('should return an empty transaction object when transaction is called without any parameters', function () {
+				var seq = new Sequelize();
+				var t = seq.transaction();
+				t.should.be.instanceOf();
+			})
+			
+			it('should allow unmanaged transaction methods', function () {
+				var seq = new Sequelize();
+				var t = seq.transaction();
+				t.rollback().should.something
+				t.commit().should.something
+			});
+			
+			it('should throw if commit is called more than once on the same transaction', function () {
+				
+			});
+			
+			it('should throw if rollback is called after commit', function () {
+				
+			});
+			
+			it('should support nested transactions', function () {
+				
+			});
+		});
+		
 	});
 	
 	describe('#literal', function () {
