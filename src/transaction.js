@@ -18,10 +18,15 @@ var path = require('path'),
  * and internally for Sequelize-Mock's managed transaction mocking.
  * Commit and Rollback will both throw errors in the same way that Sequelize would 
  * if an attempt to commit twice or rollback after commit is made.
- *  TODO: figure out how to handle mocking this.name 
+ * 
+ * Transaction ID and Name:
  * If there is a parent transaction, the id will be set to the parent id 
- * and the name will be set to ???
- * If there is no parent transaction, the id and name are both set to ???
+ * and the name will be set with the same methodology that Sequelize would use.
+ * For example, if we have a parent transaction with id of 5 and 3 savepoints,
+ * the new transaction's name would be 5-sp-3.
+ * 
+ * If there is no parent transaction and the name parameter has not been passed in the options, 
+ * the id and name are both set to an auto-incrementing counter based on the mock sequelize instance.
  *
  * 
  * @class Transaction
@@ -32,6 +37,7 @@ var path = require('path'),
 function Transaction(fn, options) {
 	this.sequelize = sequelize;
 	this._afterCommitHooks = [];
+	this.savepoints = [];
 
 	this.options = Object.assign({
       type: sequelize.options.transactionType,
@@ -43,9 +49,11 @@ function Transaction(fn, options) {
 
 	if (this.parent) {
 		this.id = this.parent.id;
-		//this.name = `${this.id}-sp-${this.parent.savepoints.length}`;
+		this.parent.savepoints.push(this);
+		this.name = `${this.id}-sp-${this.parent.savepoints.length}`;
 	} else {
-		//this.id = this.name = 
+		this.id = this.name = this.sequelize.transactionCount;
+		this.sequelize.transactionCount++;
 	}
 }
 
@@ -65,7 +73,6 @@ Transaction.ISOLATION_LEVELS = {
  * Commit the transaction. Because this won't hit the database, it'll just set the finished flag
  * so that calling commit or rollback on the transaction again will throw an error.
  * 
- * TODO: If the .afterCommit hook has been set, .afterCommit logic will be called as well.
  * 
  * @returns {Promise}
  */
@@ -75,6 +82,13 @@ Transaction.prototype.commit = function() {
 	}
 	
 	this.finished = 'commit';
+	
+	// run the aftercommithooks if they exist
+	if (length(this._afterCommitHooks)){
+		  return this._afterCommitHooks.reduce(function(prev, cur) { 
+    			return prev.then(() => fn(cur))
+  			}, Promise.resolve());
+	}
 	
 	return null;
 }
@@ -102,7 +116,7 @@ Transaction.prototype.rollback = function() {
  * @name afterCommit
  * @memberof Sequelize.Transaction
  */
-Transaction.prototype.afterCommit= function(fn) {
+Transaction.prototype.afterCommit = function(fn) {
   if (!fn || typeof fn !== 'function') {
     throw new Error('"fn" must be a function');
   }

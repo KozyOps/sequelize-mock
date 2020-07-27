@@ -11,15 +11,16 @@ var DOCUMENTATION_ORDER = {
 	'Sequelize': 1,
 	'Model': 2,
 	'Instance': 3,
-	'DataTypes': 4,
-	'QueryInterface': 5,
-	'Errors': 6,
-	'Utils': 7,
+	'Transactions': 4,
+	'DataTypes': 5,
+	'QueryInterface': 6,
+	'Errors': 7,
+	'Utils': 8,
 };
 
 /**	DocFile
  *	
- *	Wrapper for file that we are generativng documentation for. Will
+ *	Wrapper for file that we are generating documentation for. Will
  *	be used to group rendering in meaningful ways
  *	
  **/

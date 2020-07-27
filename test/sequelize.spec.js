@@ -36,7 +36,6 @@ var Sequelize = proxyquire('../src/sequelize', {
 	'./queryinterface' : QueryInterfaceMock,
 	'../package.json'  : PackageMock,
 	'./data-types'     : function () {},
-	
 	'import-test'      : importTestFunc,
 	'import-test-es6'  : { default: importTestFunc },
 });
@@ -368,6 +367,10 @@ describe('Sequelize', function () {
 			it('should rollback if an error is thrown in a query', function () {
 				
 			});
+			
+			it('should call the aftercommit function when one is set', function () {
+				
+			})
 		
 		});
 
@@ -376,7 +379,23 @@ describe('Sequelize', function () {
 			it('should return an empty transaction object when transaction is called without any parameters', function () {
 				var seq = new Sequelize();
 				var t = seq.transaction();
-				t.should.be.instanceOf();
+				t.should.be.instanceOf(Transaction);
+			})
+			
+			it('should set the name and id properly of a parented transaction', function () {
+				
+			})
+			
+			it('should allow manual id and name settings of unparented transactions', function () {
+				
+			})
+			
+			it('should automatically set the name and id of an empty transaction', function () {
+				
+			})
+			
+			it('should autoincrement the name/id of new empty transactions', function () {
+				
 			})
 			
 			it('should allow unmanaged transaction methods', function () {
@@ -397,6 +416,10 @@ describe('Sequelize', function () {
 			it('should support nested transactions', function () {
 				
 			});
+			
+			it('should call the aftercommit function when one is set', function () {
+				
+			})
 		});
 		
 	});
