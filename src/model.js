@@ -501,7 +501,6 @@ fakeModel.prototype.create = async function (obj) {
 	return await this.$query({
 		query: "Create",
 		queryOptions: arguments,
-		includeCreated: true,
 		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
 			return await self.build(obj).save();
 		},
@@ -626,19 +625,13 @@ fakeModel.prototype.bulkCreate = async function (set, options) {
  **/
 fakeModel.prototype.destroy = async function (options) {
 	var self = this;
-	if (this.$query) {
-		return await this.$query({
-			query: "destroy",
-			queryOptions: arguments,
-			fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
-				return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
-			},
-		});
-	}
-	else {
-        const instanceLevelDestroy = this.__proto__.__proto__.destroy.bind(this);
-        return await instanceLevelDestroy()
-	}
+	return await this.$query({
+		query: "destroy",
+		queryOptions: arguments,
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
+			return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
+		},
+	});
 
 };
 
@@ -658,25 +651,19 @@ fakeModel.prototype.destroy = async function (options) {
 fakeModel.prototype.update = async function (values, options) {
 	var self = this;
 	options = options || {};
-	if (this.$query) {
-        return await this.$query({
-            query: "update",
-            queryOptions: arguments,
-            options: options,
-            //if options.returning are empty or false, we are doing the default (returning both)
-            includeAffectedRows: !!!options.returning,
-            fallbackFn: !this.options.autoQueryFallback ? null : async function() {
-                if(!options.returning) {
-                    return [1];
-                }
-                return [ 1, [self.build(values)] ];
-            }
-        });
-    }
-    else {
-        const instanceLevelUpdate = this.__proto__.__proto__.update.bind(this, values);
-        return await instanceLevelUpdate()
-    }
+	return await this.$query({
+		query: "update",
+		queryOptions: arguments,
+		options: options,
+		//if options.returning are empty or false, we are doing the default (returning both)
+		includeAffectedRows: !!!options.returning,
+		fallbackFn: !this.options.autoQueryFallback ? null : async function() {
+			if(!options.returning) {
+				return [1];
+			}
+			return [ 1, [self.build(values)] ];
+		}
+	});
 
 };
 
