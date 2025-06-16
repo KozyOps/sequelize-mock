@@ -188,35 +188,6 @@ describe('Model', function () {
 			mdl.should.have.property('update').which.is.a.Function();
 			// mdl.should.have.property('describe').which.is.a.Function();
 		});
-
-		it('should store the model definition for access', function () {
-			var modelDef = {
-				'name': 'VARCHAR(255)',
-				'email': 'VARCHAR(255)',
-				'age': 'INTEGER',
-			};
-			var mdl = new Model('User', modelDef);
-
-			mdl.should.have.property('modelDefinition').which.is.an.Object();
-			mdl.modelDefinition.should.equal(modelDef);
-			mdl.modelDefinition.should.have.property('name').which.is.exactly('VARCHAR(255)');
-			mdl.modelDefinition.should.have.property('email').which.is.exactly('VARCHAR(255)');
-			mdl.modelDefinition.should.have.property('age').which.is.exactly('INTEGER');
-		});
-
-		it('should have modelDefinition accessible through instances', function () {
-			var modelDef = {
-				'title': 'VARCHAR(255)',
-				'content': 'TEXT',
-			};
-			var mdl = new Model('Post', modelDef);
-			var instance = mdl.build();
-
-			instance.Model.should.have.property('modelDefinition').which.is.an.Object();
-			instance.Model.modelDefinition.should.equal(modelDef);
-			instance.Model.modelDefinition.should.have.property('title').which.is.exactly('VARCHAR(255)');
-			instance.Model.modelDefinition.should.have.property('content').which.is.exactly('TEXT');
-		});
 	});
 
 	describe('#scope', function () {

@@ -260,7 +260,7 @@ fakeModel.prototype.getTableName = function () {
 fakeModel.prototype.unscoped =
 	/**
 	 * No-op that returns the current object
-	 * 
+	 *
 	 * @instance
 	 * @return {Model} Self
 	 **/
@@ -651,8 +651,7 @@ fakeModel.prototype.bulkCreate = async function (set, options) {
 		queryOptions: arguments,
 		fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
 			return await Promise.all(set.map(async function (val) {
-				let res = await self.create(val);
-				return await res.fallbackFn();
+				return await self.build(val).save();
 			}));
 		},
 	});
@@ -680,13 +679,8 @@ fakeModel.prototype.destroy = async function (options) {
 		});
 	}
 	else {
-		return await this.__proto__.Model.$query({
-			query: "destroy",
-			queryOptions: arguments,
-			fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
-				return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
-			},
-		});
+		const instanceLevelDestroy = this.__proto__.__proto__.destroy.bind(this);
+		return await instanceLevelDestroy()
 	}
 
 };
@@ -707,21 +701,26 @@ fakeModel.prototype.destroy = async function (options) {
 fakeModel.prototype.update = async function (values, options) {
 	var self = this;
 	options = options || {};
-
-
-	return await this.$query({
-		query: "update",
-		queryOptions: arguments,
-		options: options,
-		//if options.returning are empty or false, we are doing the default (returning both)
-		includeAffectedRows: !!!options.returning,
-		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
-			if (!options.returning) {
-				return [1];
+	if (this.$query) {
+		return await this.$query({
+			query: "update",
+			queryOptions: arguments,
+			options: options,
+			//if options.returning are empty or false, we are doing the default (returning both)
+			includeAffectedRows: !!!options.returning,
+			fallbackFn: !this.options.autoQueryFallback ? null : async function () {
+				if (!options.returning) {
+					return [1];
+				}
+				return [1, [self.build(values)]];
 			}
-			return [1, [self.build(values)]];
-		}
-	});
+		});
+	}
+	else {
+		const instanceLevelUpdate = this.__proto__.__proto__.update.bind(this, values);
+		return await instanceLevelUpdate()
+	}
+
 };
 
 // Noops
