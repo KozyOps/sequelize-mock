@@ -28,8 +28,8 @@ var _ = require('lodash'),
  * @param {Object} [opts.instanceMethods] Map of function names and the functions to be run. These functions will be added to any instances of this Model type
  * @param {Object} [opts.sequelize] Sequelize instance that this is tied to
  **/
-function fakeModel (name, defaults, opts) {
-	if(typeof name === 'object') {
+function fakeModel(name, defaults, opts) {
+	if (typeof name === 'object') {
 		defaults = name;
 		name = '';
 	}
@@ -70,6 +70,13 @@ function fakeModel (name, defaults, opts) {
 	this.name = name;
 	this._defaults = defaults || {};
 
+	/**
+	 * Model definition containing the attributes/fields defined for this model
+	 * 
+	 * @member {Object}
+	 **/
+	this.modelDefinition = defaults || {};
+
 	this.tableName = this.options.tableName || (this.options.freezeTableName ? name : Utils.pluralize(name));
 
 	/**
@@ -77,7 +84,7 @@ function fakeModel (name, defaults, opts) {
 	 *
 	 * @member {Object}
 	 **/
-	this.Instance = function() {
+	this.Instance = function () {
 		Instance.apply(this, arguments);
 	};
 
@@ -88,7 +95,7 @@ function fakeModel (name, defaults, opts) {
 		}
 	});
 
-	if(this.options.instanceMethods) {
+	if (this.options.instanceMethods) {
 		_.each(this.options.instanceMethods, function (fn, name) {
 			self.Instance.prototype[name] = fn;
 		});
@@ -101,7 +108,7 @@ function fakeModel (name, defaults, opts) {
 		createdDefault: this.options.createdDefault,
 		fallbackFn: !this.options.autoQueryFallback ? this.build.bind(this) : null,
 	};
-	if(this.options.sequelize) {
+	if (this.options.sequelize) {
 		qiOptions.parent = this.options.sequelize.getQueryInterface();
 	}
 	/**
@@ -251,15 +258,15 @@ fakeModel.prototype.getTableName = function () {
  * @return {Model} Self
  **/
 fakeModel.prototype.unscoped =
-/**
- * No-op that returns the current object
- *
- * @instance
- * @return {Model} Self
- **/
-fakeModel.prototype.scope = function () {
-	return this;
-};
+	/**
+	 * No-op that returns the current object
+	 * 
+	 * @instance
+	 * @return {Model} Self
+	 **/
+	fakeModel.prototype.scope = function () {
+		return this;
+	};
 
 /**
  * No-op that returns a void.
@@ -267,7 +274,7 @@ fakeModel.prototype.scope = function () {
  * @instance
  * @return {undefined}
  **/
-fakeModel.prototype.addScope = function () {};
+fakeModel.prototype.addScope = function () { };
 
 /**
  * Executes a mock query to find all of the instances with any provided options. Without
@@ -295,14 +302,14 @@ fakeModel.prototype.addScope = function () {};
  * @param {Object} [options.where] Values that any automatically created Instances should have
  * @return {Promise<Instance[]>} result returned by the mock query
  **/
-fakeModel.prototype.findAll =  async function (options) {
+fakeModel.prototype.findAll = async function (options) {
 	var self = this;
 
 	return await this.$query({
 		query: "findAll",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return } : async function () {
-			return [ self.build(options ? options.where : {}) ];
+		fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
+			return [self.build(options ? options.where : {})];
 		},
 	});
 };
@@ -338,21 +345,21 @@ fakeModel.prototype.findAll =  async function (options) {
  * @return {Promise<Object>} result returned by the mock query
  **/
 fakeModel.prototype.findAndCount =
-fakeModel.prototype.findAndCountAll =  async function (options) {
-	var self = this;
+	fakeModel.prototype.findAndCountAll = async function (options) {
+		var self = this;
 
-	return await this.$query({
-		query: "findAndCountAll",
-		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
-			let result =  [ self.build(options ? options.where : {}) ]
-			return {
-				count: result.length,
-				rows: result
-			};
-		},
-	});
-};
+		return await this.$query({
+			query: "findAndCountAll",
+			queryOptions: arguments,
+			fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
+				let result = [self.build(options ? options.where : {})]
+				return {
+					count: result.length,
+					rows: result
+				};
+			},
+		});
+	};
 
 /**
  * Executes a mock query to count all of the instances with any provided options. Without any other configuration, the default behavior when no queueud query result
@@ -379,14 +386,14 @@ fakeModel.prototype.findAndCountAll =  async function (options) {
  * @param {Object} [options.where] Values that any automatically created Instances should have
  * @return {Promise<Object>} result returned by the mock query
  **/
- fakeModel.prototype.count =  async function (options) {
+fakeModel.prototype.count = async function (options) {
 	var self = this;
 
 	return await this.$query({
 		query: "count",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
-			let result =  [ self.build(options ? options.where : {}) ]
+		fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
+			let result = [self.build(options ? options.where : {})]
 			return result.length
 		}
 	});
@@ -405,17 +412,17 @@ fakeModel.prototype.findAndCountAll =  async function (options) {
  * @return {Promise<Instance>} Promise that resolves with an instance with the given ID
  **/
 fakeModel.prototype.findById =
-fakeModel.prototype.findByPk = async function (id) {
-	var self = this;
+	fakeModel.prototype.findByPk = async function (id) {
+		var self = this;
 
-	return await this.$query({
-		query: "findById",
-		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return } : async function () {
-			return self.build({ id: id });
-		},
-	});
-};
+		return await this.$query({
+			query: "findById",
+			queryOptions: arguments,
+			fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
+				return self.build({ id: id });
+			},
+		});
+	};
 
 /**
  * Executes a mock query to find an instance with the given infomation. Without any other
@@ -442,17 +449,17 @@ fakeModel.prototype.findByPk = async function (id) {
  * @return {Promise<Instance>} Promise that resolves with an instance with the given properties
  **/
 fakeModel.prototype.find =
-fakeModel.prototype.findOne = async function (obj) {
-	var self = this;
+	fakeModel.prototype.findOne = async function (obj) {
+		var self = this;
 
-	return await this.$query({
-		query: "findOne",
-		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
-			return self.build(obj ? obj.where : {});
-		},
-	});
-};
+		return await this.$query({
+			query: "findOne",
+			queryOptions: arguments,
+			fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
+				return self.build(obj ? obj.where : {});
+			},
+		});
+	};
 
 /**
  * Executes a mock query to find the max value of a field. Without any other
@@ -465,38 +472,38 @@ fakeModel.prototype.findOne = async function (obj) {
  * @return {Any} the default value for the given field
  **/
 fakeModel.prototype.max =
-/**
- * Executes a mock query to find the min value of a field. Without any other
- * configuration, the default behavior when no queueud query result is present
- * is to return the default value for the given field
- *
- * @instance
- * @method
- * @param {String} field Name of the field to return for
- * @return {Any} the default value for the given field
- **/
-fakeModel.prototype.min =
-/**
- * Executes a mock query to find the sum value of a field. Without any other
- * configuration, the default behavior when no queueud query result is present
- * is to return the default value for the given field
- *
- * @instance
- * @method
- * @param {String} field Name of the field to return for
- * @return {Any} the default value for the given field
- **/
-fakeModel.prototype.sum = async function (field) {
-	var self = this;
+	/**
+	 * Executes a mock query to find the min value of a field. Without any other
+	 * configuration, the default behavior when no queueud query result is present
+	 * is to return the default value for the given field
+	 *
+	 * @instance
+	 * @method
+	 * @param {String} field Name of the field to return for
+	 * @return {Any} the default value for the given field
+	 **/
+	fakeModel.prototype.min =
+	/**
+	 * Executes a mock query to find the sum value of a field. Without any other
+	 * configuration, the default behavior when no queueud query result is present
+	 * is to return the default value for the given field
+	 *
+	 * @instance
+	 * @method
+	 * @param {String} field Name of the field to return for
+	 * @return {Any} the default value for the given field
+	 **/
+	fakeModel.prototype.sum = async function (field) {
+		var self = this;
 
-	return await this.$query({
-		query: "sum",
-		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return } : async function () {
-			return self._defaults[field];
-		},
-	});
-};
+		return await this.$query({
+			query: "sum",
+			queryOptions: arguments,
+			fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
+				return self._defaults[field];
+			},
+		});
+	};
 
 /**
  * Builds a new Instance with the given properties
@@ -517,7 +524,7 @@ fakeModel.prototype.build = function (values, options) {
 		deletedAt: this.options.deletedAt,
 	});
 
-	if(typeof options.isNewRecord != 'boolean') {
+	if (typeof options.isNewRecord != 'boolean') {
 		options.isNewRecord = true;
 	}
 
@@ -583,22 +590,22 @@ fakeModel.prototype.findOrCreate = async function (obj) {
  * @return {Promise<Boolean>} Promise that resolves with a boolean meant to indicate if something was inserted
  **/
 fakeModel.prototype.insertOrUpdate =
-fakeModel.prototype.upsert = async function (values) {
-	var self = this;
+	fakeModel.prototype.upsert = async function (values) {
+		var self = this;
 
-	return await this.$query({
-		query: "upsert",
-		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return } : async function () {
-			if (Object.keys().length === 0) {
-				return self.options.createdDefault;
-			}
-			else {
-				return await self.build(values).save();
-			}
-		},
-	});
-}
+		return await this.$query({
+			query: "upsert",
+			queryOptions: arguments,
+			fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
+				if (Object.keys().length === 0) {
+					return self.options.createdDefault;
+				}
+				else {
+					return await self.build(values).save();
+				}
+			},
+		});
+	}
 
 /**
  * @instance
@@ -615,7 +622,7 @@ fakeModel.prototype.upsert = async function (values, returning) {
 		query: "upsert",
 		queryOptions: arguments,
 		//if there is nothing queued, return the input object with a created value equal to the createdDefault
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function (values) {
+		fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function (values) {
 			if (typeof values === 'undefined') {
 				return self.options.createdDefault;
 			}
@@ -642,9 +649,10 @@ fakeModel.prototype.bulkCreate = async function (set, options) {
 	return await this.$query({
 		query: "bulkCreate",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
-			return await Promise.all(set.map(async function(val) {
-				return await self.build(val).save();
+		fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
+			return await Promise.all(set.map(async function (val) {
+				let res = await self.create(val);
+				return await res.fallbackFn();
 			}));
 		},
 	});
@@ -666,14 +674,19 @@ fakeModel.prototype.destroy = async function (options) {
 		return await this.$query({
 			query: "destroy",
 			queryOptions: arguments,
-			fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
+			fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
 				return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
 			},
 		});
 	}
 	else {
-        const instanceLevelDestroy = this.__proto__.__proto__.destroy.bind(this);
-        return await instanceLevelDestroy()
+		return await this.__proto__.Model.$query({
+			query: "destroy",
+			queryOptions: arguments,
+			fallbackFn: !this.options.autoQueryFallback ? async function () { return } : async function () {
+				return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
+			},
+		});
 	}
 
 };
@@ -694,41 +707,36 @@ fakeModel.prototype.destroy = async function (options) {
 fakeModel.prototype.update = async function (values, options) {
 	var self = this;
 	options = options || {};
-	if (this.$query) {
-        return await this.$query({
-            query: "update",
-            queryOptions: arguments,
-            options: options,
-            //if options.returning are empty or false, we are doing the default (returning both)
-            includeAffectedRows: !!!options.returning,
-            fallbackFn: !this.options.autoQueryFallback ? null : async function() {
-                if(!options.returning) {
-                    return [1];
-                }
-                return [ 1, [self.build(values)] ];
-            }
-        });
-    }
-    else {
-        const instanceLevelUpdate = this.__proto__.__proto__.update.bind(this, values);
-        return await instanceLevelUpdate()
-    }
 
+
+	return await this.$query({
+		query: "update",
+		queryOptions: arguments,
+		options: options,
+		//if options.returning are empty or false, we are doing the default (returning both)
+		includeAffectedRows: !!!options.returning,
+		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
+			if (!options.returning) {
+				return [1];
+			}
+			return [1, [self.build(values)]];
+		}
+	});
 };
 
 // Noops
 fakeModel.prototype.addHook =
-fakeModel.prototype.removeHook = function () {};
+	fakeModel.prototype.removeHook = function () { };
 
 // Associations
 fakeModel.prototype.belongsTo = fakeModel.prototype.hasOne = function (item, options) {
-	if(!(item instanceof fakeModel)) {
+	if (!(item instanceof fakeModel)) {
 		return;
 	}
 
 	var isString = typeof item === 'string',
 		name;
-	if(options && options.as) {
+	if (options && options.as) {
 		name = options.as;
 	} else if (isString) {
 		name = item;
@@ -736,12 +744,12 @@ fakeModel.prototype.belongsTo = fakeModel.prototype.hasOne = function (item, opt
 		name = item.getTableName();
 	}
 
-	var singular = Utils.uppercaseFirst( Utils.singularize(name) ),
-		plural = Utils.uppercaseFirst( Utils.pluralize(name) ),
+	var singular = Utils.uppercaseFirst(Utils.singularize(name)),
+		plural = Utils.uppercaseFirst(Utils.pluralize(name)),
 		self = this,
 		noop = function () { return Promise.resolve(self); };
 
-	if(isString) {
+	if (isString) {
 		this.Instance.prototype['get' + singular] = function (opts) { return Promise.resolve(new self.Instance(opts && opts.where ? opts.where : opts)); };
 	} else {
 		this.Instance.prototype['get' + singular] = item.findOne.bind(item);
@@ -751,7 +759,7 @@ fakeModel.prototype.belongsTo = fakeModel.prototype.hasOne = function (item, opt
 };
 
 fakeModel.prototype.belongsToMany = fakeModel.prototype.hasMany = function (item, options) {
-	if(!(item instanceof fakeModel)) {
+	if (!(item instanceof fakeModel)) {
 		return {
 			through: {
 				model: new fakeModel(this.getTableName() + (item && item.name ? item.name : 'Association'), {}, { hasPrimaryKeys: false })
@@ -761,10 +769,10 @@ fakeModel.prototype.belongsToMany = fakeModel.prototype.hasMany = function (item
 
 	var isString = typeof item === 'string',
 		name, singular, plural;
-	if(options && options.as) {
+	if (options && options.as) {
 		name = options.as;
-		singular = Utils.uppercaseFirst( Utils.singularize(name) );
-		plural = Utils.uppercaseFirst( name );
+		singular = Utils.uppercaseFirst(Utils.singularize(name));
+		plural = Utils.uppercaseFirst(name);
 
 	} else {
 		if (isString) {
@@ -772,14 +780,14 @@ fakeModel.prototype.belongsToMany = fakeModel.prototype.hasMany = function (item
 		} else {
 			name = item.getTableName();
 		}
-		singular = Utils.uppercaseFirst( Utils.singularize(name) );
-		plural = Utils.uppercaseFirst( Utils.pluralize(name) );
+		singular = Utils.uppercaseFirst(Utils.singularize(name));
+		plural = Utils.uppercaseFirst(Utils.pluralize(name));
 	}
 
 	var self = this,
 		noop = function () { return Promise.resolve(self); };
 
-	if(isString) {
+	if (isString) {
 		this.Instance.prototype['get' + plural] = function (opts) { return Promise.resolve([new self.Instance(opts && opts.where ? opts.where : opts)]); };
 	} else {
 		this.Instance.prototype['get' + plural] = item.findAll.bind(item);
@@ -796,7 +804,7 @@ fakeModel.prototype.belongsToMany = fakeModel.prototype.hasMany = function (item
 
 	return {
 		through: {
-			model: new fakeModel( this.getTableName() + plural, {}, { hasPrimaryKeys: false } )
+			model: new fakeModel(this.getTableName() + plural, {}, { hasPrimaryKeys: false })
 		}
 	};
 };
