@@ -69,6 +69,14 @@ function fakeModel(name, defaults, opts) {
 	 **/
 	this.name = name;
 	this._defaults = defaults || {};
+	this.primaryKeys = {
+		id: {
+			type: 'INTEGER',
+			allowNull: false,
+			autoIncrement: true,
+			primaryKey: true
+		}
+	}
 
 	/**
 	 * Model definition containing the attributes/fields defined for this model
